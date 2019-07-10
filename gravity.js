@@ -1,5 +1,12 @@
 var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
+var score = document.querySelector('#score');
+var btn = document.querySelector('#btn');
+var stop = document.querySelector('#st');
+stop.addEventListener('click',()=>{
+    c.clearRect(0, 0, innerWidth, innerHeight);
+    window.cancelAnimationFrame(req);
+});
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -16,10 +23,13 @@ var circleArr = [];
 var maxRadius = 50;
 var minRadius = 2;
 
-var bubbles = 700;
+var bubbles = 200;
 var req;
 
-var clap = true;
+var count = 0; 
+score.style.fontSize = "20px";
+score.style.color = "lightgreen";
+score.innerHTML =  "Score = "+count;
 
 window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
@@ -33,20 +43,27 @@ window.addEventListener('resize', function (e) {
     init();
 });
 
-window.addEventListener('click', function (e) {
-    clap = !clap;
- 
-    if(clap){
-        init();
-        animate();
-    }
-    if(!clap){
-        window.cancelAnimationFrame(req);
-    }
+canvas.addEventListener('click', function (e) {
+    killer.x = e.x;
+    killer.y = e.y;
+    bubbleChecker();
 });
 
-function bubbleChecker(bubbles, killer) {
-    console.log(bubbles, killer)
+function bubbleChecker() {
+
+    let index = circleArr.findIndex(e => Math.ceil(e.x) >= killer.x && Math.ceil(e.y) >= killer.y);
+
+    if(index !== -1){
+        circleArr.splice(index,1);
+        count++;
+        score.innerHTML = "Score = "+count;
+    }
+   
+    // console.log(circleArr.length)
+     if(circleArr.length === 0 ){
+        c.clearRect(0, 0, innerWidth, innerHeight);
+        window.cancelAnimationFrame(req);
+    }
 }
 
 function Circle(x, y, dx, dy, radius) {
@@ -62,7 +79,8 @@ function Circle(x, y, dx, dy, radius) {
     this.g;
     this.b;
 
-    this.color = "rgb(255,255,255,0.1)";
+    // this.color = "rgb(255,255,255,0.8)";
+    this.color = "silver";
 
     this.draw = function () {
         c.beginPath();
@@ -136,5 +154,9 @@ function animate() {
         circleArr[i].update();
     }
 };
-init();
-animate();
+
+
+btn.addEventListener("click",(e)=>{
+    init();
+    animate();
+});
